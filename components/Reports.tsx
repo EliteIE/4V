@@ -1,6 +1,6 @@
-
 import React, { useMemo } from 'react';
 import { useStore } from '../store';
+import { useTheme } from './ThemeContext';
 import { 
   BarChart, 
   Bar, 
@@ -21,6 +21,7 @@ const PIE_COLORS = ['#2563eb', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 const Reports: React.FC = () => {
   const { sales, products, brands } = useStore();
+  const { theme } = useTheme();
 
   // --- Data Processing ---
 
@@ -97,16 +98,20 @@ const Reports: React.FC = () => {
       .sort((a, b) => b.value - a.value);
   }, [sales, products, brands]);
 
+  // Chart styling variables based on theme
+  const chartGridColor = theme === 'dark' ? '#334155' : '#e2e8f0';
+  const chartTextColor = theme === 'dark' ? '#94a3b8' : '#64748b';
+  const tooltipBg = theme === 'dark' ? '#1e293b' : '#ffffff';
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
       <div className="flex items-center space-x-4">
-        <div className="p-3 bg-purple-100 text-purple-600 rounded-xl">
+        <div className="p-3 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl">
           <TrendingUp size={32} />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Reportes y Estadísticas</h2>
-          <p className="text-slate-500">Análisis de rendimiento comercial y rotación de inventario</p>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Reportes y Estadísticas</h2>
+          <p className="text-slate-500 dark:text-slate-400">Análisis de rendimiento comercial y rotación de inventario</p>
         </div>
       </div>
 
@@ -114,25 +119,31 @@ const Reports: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* Top Selling Products Chart */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
             <Award className="text-yellow-500" size={20} />
             Productos Más Vendidos (Unidades)
           </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topSellingProducts} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={chartGridColor} />
                 <XAxis type="number" hide />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
                   width={120} 
-                  tick={{fontSize: 11, fill: '#64748b'}} 
+                  tick={{fontSize: 11, fill: chartTextColor}} 
                 />
                 <Tooltip 
-                  cursor={{fill: '#f1f5f9'}}
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  cursor={{fill: theme === 'dark' ? '#334155' : '#f1f5f9'}}
+                  contentStyle={{ 
+                    borderRadius: '8px', 
+                    border: 'none', 
+                    backgroundColor: tooltipBg,
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    color: theme === 'dark' ? '#fff' : '#000' 
+                  }}
                 />
                 <Bar dataKey="sold" fill="#2563eb" radius={[0, 4, 4, 0]} barSize={24} name="Unidades Vendidas" />
               </BarChart>
@@ -141,8 +152,8 @@ const Reports: React.FC = () => {
         </div>
 
         {/* Category Pie Chart */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
             <PieIcon className="text-green-500" size={20} />
             Ingresos por Categoría
           </h3>
@@ -162,7 +173,16 @@ const Reports: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                <Tooltip 
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                  contentStyle={{ 
+                    borderRadius: '8px', 
+                    border: 'none', 
+                    backgroundColor: tooltipBg,
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    color: theme === 'dark' ? '#fff' : '#000' 
+                  }}
+                />
                 <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
@@ -174,8 +194,8 @@ const Reports: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Sales by Brand */}
-        <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+        <div className="lg:col-span-1 bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
             <Layers className="text-indigo-500" size={20} />
             Ventas por Marca (Unidades)
           </h3>
@@ -183,16 +203,16 @@ const Reports: React.FC = () => {
             {brandData.map((item, idx) => (
               <div key={idx} className="relative pt-1">
                 <div className="flex mb-2 items-center justify-between">
-                  <div className="font-semibold text-sm text-slate-700">
+                  <div className="font-semibold text-sm text-slate-700 dark:text-slate-200">
                     {item.name}
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold inline-block text-slate-600">
+                    <span className="text-xs font-semibold inline-block text-slate-600 dark:text-slate-400">
                       {item.value}
                     </span>
                   </div>
                 </div>
-                <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-slate-100">
+                <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-slate-100 dark:bg-slate-800">
                   <div 
                     style={{ width: `${(item.value / Math.max(...brandData.map(b => b.value))) * 100}%` }} 
                     className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500"
@@ -204,14 +224,14 @@ const Reports: React.FC = () => {
         </div>
 
         {/* Detailed Rotation Table */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-slate-100">
-            <h3 className="text-lg font-bold text-slate-800">Rotación de Inventario</h3>
-            <p className="text-sm text-slate-500">Comparativa: Ventas acumuladas vs Stock Actual</p>
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col transition-colors">
+          <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Rotación de Inventario</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Comparativa: Ventas acumuladas vs Stock Actual</p>
           </div>
           <div className="flex-1 overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-slate-500">
+              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400">
                 <tr>
                   <th className="px-6 py-3 font-medium">Producto</th>
                   <th className="px-6 py-3 font-medium text-center">Ventas Históricas</th>
@@ -219,35 +239,35 @@ const Reports: React.FC = () => {
                   <th className="px-6 py-3 font-medium text-center">Estado</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {productPerformance
                   .sort((a, b) => b.sold - a.sold) // Sort by most sold
                   .slice(0, 8) // Show top 8 movers
                   .map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50">
-                    <td className="px-6 py-4 font-medium text-slate-800">
+                  <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-slate-800 dark:text-slate-200">
                       {item.name}
                       <span className="block text-xs text-slate-400 font-normal">{item.category}</span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded font-bold">
+                      <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-2 py-1 rounded font-bold">
                         {item.sold} un.
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center text-slate-600 font-medium">
+                    <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400 font-medium">
                       {item.currentStock} un.
                     </td>
                     <td className="px-6 py-4 text-center">
                       {item.sold > item.currentStock && item.currentStock < 5 ? (
-                        <span className="text-xs font-bold text-red-500 flex items-center justify-center gap-1">
+                        <span className="text-xs font-bold text-red-500 dark:text-red-400 flex items-center justify-center gap-1">
                           Alta Rotación / Reponer
                         </span>
                       ) : item.sold === 0 ? (
-                        <span className="text-xs font-bold text-slate-400">
+                        <span className="text-xs font-bold text-slate-400 dark:text-slate-600">
                           Sin Movimiento
                         </span>
                       ) : (
-                        <span className="text-xs font-bold text-blue-500">
+                        <span className="text-xs font-bold text-blue-500 dark:text-blue-400">
                           Estable
                         </span>
                       )}
@@ -257,8 +277,8 @@ const Reports: React.FC = () => {
               </tbody>
             </table>
           </div>
-          <div className="p-4 bg-slate-50 border-t border-slate-100 text-center">
-             <span className="text-xs text-slate-400">Mostrando los 8 productos con mayor movimiento</span>
+          <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 text-center">
+             <span className="text-xs text-slate-400 dark:text-slate-500">Mostrando los 8 productos con mayor movimiento</span>
           </div>
         </div>
       </div>

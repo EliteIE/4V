@@ -76,16 +76,17 @@ const StockEntry: React.FC = () => {
   };
 
   const getTempTotal = () => {
-    return Object.values(tempQuantities).reduce((acc, val) => acc + (parseInt(val) || 0), 0);
+    return (Object.values(tempQuantities) as string[]).reduce((acc, val) => acc + (parseInt(val) || 0), 0);
   };
 
   const addToQueue = () => {
-    if (!selectedProduct || getTempTotal() === 0) return;
+    const total = getTempTotal();
+    if (!selectedProduct || total === 0) return;
 
     const newItem: QueueItem = {
       product: selectedProduct,
       quantities: { ...tempQuantities },
-      totalQty: getTempTotal()
+      totalQty: total
     };
 
     setEntryQueue([...entryQueue, newItem]);
@@ -113,7 +114,7 @@ const StockEntry: React.FC = () => {
     // Process all items in queue
     entryQueue.forEach(item => {
       Object.entries(item.quantities).forEach(([variantId, qtyStr]) => {
-        const qty = parseInt(qtyStr);
+        const qty = parseInt(qtyStr as string);
         if (qty > 0) {
           addStockMovement({
             type: MovementType.ENTRADA,
@@ -143,12 +144,12 @@ const StockEntry: React.FC = () => {
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="p-3 bg-indigo-100 text-indigo-600 rounded-xl">
+          <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl">
             <PlusCircle size={32} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-slate-800">Entrada de Mercadería</h2>
-            <p className="text-slate-500">Carga masiva de stock al depósito</p>
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Entrada de Mercadería</h2>
+            <p className="text-slate-500 dark:text-slate-400">Carga masiva de stock al depósito</p>
           </div>
         </div>
       </div>
@@ -159,9 +160,9 @@ const StockEntry: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           
           {/* 1. Selector Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="bg-slate-800 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 transition-colors">
+            <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+              <span className="bg-slate-800 dark:bg-slate-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
               Agregar Producto a la Lista
             </h3>
              
@@ -174,7 +175,7 @@ const StockEntry: React.FC = () => {
                 
                 <input
                   type="text"
-                  className={`w-full pl-10 pr-10 py-3 border ${isDropdownOpen ? 'border-primary ring-2 ring-primary/20' : 'border-slate-300'} rounded-lg focus:outline-none bg-white text-slate-800 transition-all placeholder-slate-400`}
+                  className={`w-full pl-10 pr-10 py-3 border ${isDropdownOpen ? 'border-primary ring-2 ring-primary/20' : 'border-slate-300 dark:border-slate-700'} rounded-lg focus:outline-none bg-white dark:bg-slate-800 text-slate-800 dark:text-white transition-all placeholder-slate-400`}
                   placeholder="Buscar producto para agregar..."
                   value={searchTerm}
                   onChange={(e) => {
@@ -195,9 +196,9 @@ const StockEntry: React.FC = () => {
                 )}
 
                 {isDropdownOpen && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                         {filteredProducts.length === 0 ? (
-                            <div className="p-4 text-center text-slate-500 text-sm">
+                            <div className="p-4 text-center text-slate-500 dark:text-slate-400 text-sm">
                                 {entryQueue.length > 0 && products.some(p => p.name.includes(searchTerm)) 
                                   ? "El producto ya está en la lista."
                                   : "No se encontraron productos."}
@@ -207,11 +208,11 @@ const StockEntry: React.FC = () => {
                                 <button
                                     key={p.id}
                                     onClick={() => handleSelectProduct(p)}
-                                    className="w-full text-left px-4 py-3 hover:bg-slate-50 flex items-center justify-between border-b border-slate-50 last:border-0 transition-colors group"
+                                    className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between border-b border-slate-50 dark:border-slate-700 last:border-0 transition-colors group"
                                 >
                                     <div>
-                                        <p className="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors">{p.name}</p>
-                                        <p className="text-xs text-slate-500">{p.sku} • {p.category}</p>
+                                        <p className="font-bold text-slate-800 dark:text-white text-sm group-hover:text-primary transition-colors">{p.name}</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">{p.sku} • {p.category}</p>
                                     </div>
                                     <Plus size={16} className="text-slate-300 group-hover:text-primary transition-colors" />
                                 </button>
@@ -224,27 +225,27 @@ const StockEntry: React.FC = () => {
 
             {/* Variants Input for Selected Product */}
             {selectedProduct ? (
-              <div className="animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50 p-5 rounded-xl border border-slate-200">
+              <div className="animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50 dark:bg-slate-800/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div className="flex items-center justify-between mb-4">
                     <div>
-                        <h3 className="font-bold text-slate-800">{selectedProduct.name}</h3>
-                        <p className="text-xs text-slate-500">{selectedProduct.sku}</p>
+                        <h3 className="font-bold text-slate-800 dark:text-white">{selectedProduct.name}</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{selectedProduct.sku}</p>
                     </div>
                     <button onClick={clearSelection} className="text-xs text-slate-400 hover:text-red-500 underline">Cancelar</button>
                 </div>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                   {selectedProduct.variants.map(v => (
-                    <div key={v.id} className="bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+                    <div key={v.id} className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="font-semibold text-xs text-slate-700">{v.size} <span className="text-slate-400">| {v.color}</span></span>
+                        <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">{v.size} <span className="text-slate-400">| {v.color}</span></span>
                         <span className="text-[10px] text-slate-400">Stock: {v.stock}</span>
                       </div>
                       <input
                         type="text"
                         inputMode="numeric"
                         placeholder="0"
-                        className="w-full p-1.5 border border-slate-200 rounded text-center font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
+                        className="w-full p-1.5 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 rounded text-center font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                         value={tempQuantities[v.id] || ''}
                         onChange={(e) => handleQuantityChange(v.id, e.target.value)}
                       />
@@ -258,8 +259,8 @@ const StockEntry: React.FC = () => {
                         disabled={getTempTotal() === 0}
                         className={`px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all ${
                             getTempTotal() > 0 
-                            ? 'bg-slate-800 text-white hover:bg-slate-900' 
-                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                            ? 'bg-slate-800 dark:bg-slate-700 text-white hover:bg-slate-900 dark:hover:bg-slate-600' 
+                            : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
                         }`}
                     >
                         <Plus size={16} />
@@ -268,7 +269,7 @@ const StockEntry: React.FC = () => {
                 </div>
               </div>
             ) : (
-                <div className="text-center py-8 text-slate-400 text-sm bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                <div className="text-center py-8 text-slate-400 dark:text-slate-500 text-sm bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
                     Busque un producto para definir cantidades
                 </div>
             )}
@@ -276,40 +277,41 @@ const StockEntry: React.FC = () => {
 
           {/* 2. List of items to be added */}
           <div>
-            <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-               <span className="bg-slate-800 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+            <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+               <span className="bg-slate-800 dark:bg-slate-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
                Lista de Entrada ({entryQueue.length})
             </h3>
             
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[200px]">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden min-h-[200px]">
                 {entryQueue.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-48 text-slate-400">
+                    <div className="flex flex-col items-center justify-center h-48 text-slate-400 dark:text-slate-500">
                         <Package size={48} className="mb-2 opacity-20" />
                         <p>La lista está vacía.</p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-slate-100">
+                    <div className="divide-y divide-slate-100 dark:divide-slate-800">
                         {entryQueue.map((item, idx) => (
-                            <div key={idx} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                            <div key={idx} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                 <div className="flex-1">
                                     <div className="flex items-baseline gap-2">
-                                        <h4 className="font-bold text-slate-800">{item.product.name}</h4>
-                                        <span className="text-xs text-slate-500">{item.product.sku}</span>
+                                        <h4 className="font-bold text-slate-800 dark:text-white">{item.product.name}</h4>
+                                        <span className="text-xs text-slate-500 dark:text-slate-400">{item.product.sku}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-2 mt-1">
                                         {Object.entries(item.quantities).map(([vid, qty]) => {
                                             const v = item.product.variants.find(rv => rv.id === vid);
-                                            if (!v || parseInt(qty) <= 0) return null;
+                                            const quantity = parseInt(qty as string);
+                                            if (!v || quantity <= 0) return null;
                                             return (
-                                                <span key={vid} className="text-xs bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded border border-indigo-100">
-                                                    {v.size}/{v.color}: <strong>+{qty}</strong>
+                                                <span key={vid} className="text-xs bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-100 dark:border-indigo-800">
+                                                    {v.size}/{v.color}: <strong>+{quantity}</strong>
                                                 </span>
                                             )
                                         })}
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 pl-4">
-                                    <span className="font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
+                                    <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
                                         +{item.totalQty} u.
                                     </span>
                                     <button 
@@ -330,25 +332,25 @@ const StockEntry: React.FC = () => {
 
         {/* RIGHT COLUMN: Summary & Confirm */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-6 flex flex-col h-fit">
-            <h3 className="text-lg font-bold text-slate-800 mb-4">Resumen General</h3>
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 sticky top-6 flex flex-col h-fit transition-colors">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Resumen General</h3>
             
             <div className="space-y-4 mb-6 flex-1">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-500 text-sm">Productos Diferentes</span>
-                    <span className="font-bold text-slate-800">{totalQueueItems}</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-sm">Productos Diferentes</span>
+                    <span className="font-bold text-slate-800 dark:text-white">{totalQueueItems}</span>
                  </div>
-                 <div className="flex justify-between items-center border-t border-slate-200 pt-2">
-                    <span className="text-slate-800 font-bold">Total Unidades</span>
-                    <span className="font-bold text-2xl text-indigo-600">+{totalQueueUnits}</span>
+                 <div className="flex justify-between items-center border-t border-slate-200 dark:border-slate-700 pt-2">
+                    <span className="text-slate-800 dark:text-white font-bold">Total Unidades</span>
+                    <span className="font-bold text-2xl text-indigo-600 dark:text-indigo-400">+{totalQueueUnits}</span>
                  </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">3. Observaciones</label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">3. Observaciones</label>
                 <textarea
-                    className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none h-32 text-sm"
+                    className="w-full p-3 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none h-32 text-sm text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
                     placeholder="Ej: Remito N° 1234 - Proveedor Oficial..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
@@ -364,7 +366,7 @@ const StockEntry: React.FC = () => {
                 ${success 
                   ? 'bg-green-500 text-white'
                   : (entryQueue.length === 0)
-                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none'
                     : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30'}
               `}
             >
@@ -387,17 +389,17 @@ const StockEntry: React.FC = () => {
       {/* Confirmation Modal */}
       {isConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden scale-100 animate-in zoom-in-95 duration-200 flex flex-col max-h-[80vh]">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center flex-shrink-0">
-              <h3 className="text-xl font-bold text-slate-800">Confirmar Entrada Masiva</h3>
-              <button onClick={() => setIsConfirmOpen(false)} className="text-slate-400 hover:text-slate-600">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden scale-100 animate-in zoom-in-95 duration-200 flex flex-col max-h-[80vh] border border-slate-200 dark:border-slate-800">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center flex-shrink-0">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white">Confirmar Entrada Masiva</h3>
+              <button onClick={() => setIsConfirmOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                 <X size={20} />
               </button>
             </div>
             
             <div className="p-6 space-y-4 overflow-y-auto">
-              <div className="flex items-start gap-3 text-slate-600 bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                <AlertCircle className="text-indigo-600 flex-shrink-0 mt-0.5" size={20} />
+              <div className="flex items-start gap-3 text-slate-600 dark:text-slate-300 bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
+                <AlertCircle className="text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5" size={20} />
                 <p className="text-sm">
                    Se ingresarán un total de <strong>{totalQueueUnits} unidades</strong> distribuidas en <strong>{totalQueueItems} productos</strong>.
                 </p>
@@ -405,16 +407,16 @@ const StockEntry: React.FC = () => {
 
               <div className="space-y-2">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Detalle de la operación</p>
-                <div className="border border-slate-200 rounded-xl divide-y divide-slate-100">
+                <div className="border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                    {entryQueue.map((item, idx) => (
                        <div key={idx} className="p-3 text-sm flex justify-between items-center">
                            <div>
-                               <span className="font-bold text-slate-700 block">{item.product.name}</span>
-                               <span className="text-xs text-slate-500">
-                                   {Object.values(item.quantities).reduce((a,b) => a + (parseInt(b)||0), 0)} un. en total
+                               <span className="font-bold text-slate-700 dark:text-slate-200 block">{item.product.name}</span>
+                               <span className="text-xs text-slate-500 dark:text-slate-400">
+                                   {(Object.values(item.quantities) as string[]).reduce((a,b) => a + (parseInt(b)||0), 0)} un. en total
                                </span>
                            </div>
-                           <div className="text-green-600 font-bold text-xs bg-green-50 px-2 py-1 rounded">
+                           <div className="text-green-600 dark:text-green-400 font-bold text-xs bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded border border-green-100 dark:border-green-800/50">
                                Registrar
                            </div>
                        </div>
@@ -423,16 +425,16 @@ const StockEntry: React.FC = () => {
               </div>
 
               {notes && (
-                 <div className="text-xs text-slate-500 italic bg-slate-50 p-3 rounded-lg">
+                 <div className="text-xs text-slate-500 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
                     Nota asociada: "{notes}"
                  </div>
               )}
             </div>
 
-            <div className="p-6 border-t border-slate-100 flex gap-3 bg-slate-50 flex-shrink-0">
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex gap-3 bg-slate-50 dark:bg-slate-900 flex-shrink-0">
               <button 
                 onClick={() => setIsConfirmOpen(false)} 
-                className="flex-1 py-3 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+                className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-700 font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 Cancelar
               </button>
