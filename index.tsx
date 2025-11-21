@@ -1,7 +1,9 @@
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AppProvider } from './store';
+import { ThemeProvider } from './components/ThemeContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -11,8 +13,10 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <AppProvider>
-      <App />
-    </AppProvider>
+    <ThemeProvider defaultTheme="system" storageKey="cv-theme">
+      <AppProvider>
+        <App />
+      </AppProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );
